@@ -170,3 +170,8 @@ INDEX_REPLICAS = env.to_int("ALEPH_INDEX_REPLICAS", 0)
 INDEX_PREFIX = env.get("ALEPH_INDEX_PREFIX", APP_NAME)
 INDEX_WRITE = env.get("ALEPH_INDEX_WRITE", "v1")
 INDEX_READ = env.to_list("ALEPH_INDEX_READ", [INDEX_WRITE])
+
+###############################################################################
+# XREF Model Selection
+XREF_MODEL = env.get("FTM_COMPARE_MODEL", None)
+
