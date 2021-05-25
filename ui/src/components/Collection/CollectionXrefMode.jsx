@@ -12,6 +12,7 @@ import { QueryInfiniteLoad } from 'components/common';
 import CollectionXrefManageMenu from 'components/Collection/CollectionXrefManageMenu';
 import XrefTable from 'components/XrefTable/XrefTable';
 import SortingBar from 'components/SortingBar/SortingBar';
+import SortingBarSelect from 'components/SortingBar/SortingBarSelect';
 import { collectionXrefFacetsQuery } from 'queries';
 import { selectCollection, selectCollectionXrefResult, selectTester } from 'selectors';
 import { queryCollectionXref, queryRoles } from 'actions';
@@ -19,13 +20,17 @@ import { queryCollectionXref, queryRoles } from 'actions';
 import './CollectionXrefMode.scss';
 
 const messages = defineMessages({
-  sort_random: {
+  random: {
     id: 'xref.sort.random',
     defaultMessage: 'Random',
   },
-  sort_default: {
+  default: {
     id: 'xref.sort.default',
     defaultMessage: 'Default',
+  },
+  doubt: {
+    id: 'xref.sort.doubt',
+    defaultMessage: 'Doubt',
   },
   sort_label: {
     id: "xref.sort.label",
@@ -37,7 +42,7 @@ export class CollectionXrefMode extends React.Component {
   constructor(props) {
     super(props);
     this.updateQuery = this.updateQuery.bind(this);
-    this.toggleSort = this.toggleSort.bind(this);
+    this.onSort = this.onSort.bind(this);
   }
 
   updateQuery(newQuery) {
@@ -52,17 +57,22 @@ export class CollectionXrefMode extends React.Component {
     });
   }
 
-  toggleSort() {
-    const { isRandomSort, query } = this.props;
-    if (isRandomSort) {
+  onSort(nextSort) {
+    const { query } = this.props;
+    const { field } = nextSort;
+
+    if (field === 'default') {
       this.updateQuery(query.clear('sort'));
     } else {
-      this.updateQuery(query.sortBy('random', 'desc'));
+      this.updateQuery(query.sortBy(field, 'desc'));
     }
   }
 
   render() {
-    const { collection, isRandomSort, intl, isTester, query, result } = this.props;
+    const { activeSortField, collection, isRandomSort, intl, isTester, query, result } = this.props;
+
+    const sortOptions = ['default', 'random', 'doubt'].map(field => ({ field, label: intl.formatMessage(messages[field]) }));
+
     return (
       <section className="CollectionXrefMode">
         <div className="pane-layout">
@@ -86,11 +96,10 @@ export class CollectionXrefMode extends React.Component {
                   <SortingBar
                     filterButtonLabel={intl.formatMessage(messages.sort_label)}
                     filterButton={
-                      <Button
-                        text={intl.formatMessage(messages[isRandomSort ? 'sort_random' : 'sort_default'])}
-                        onClick={this.toggleSort}
-                        minimal
-                        intent={Intent.PRIMARY}
+                      <SortingBarSelect
+                        items={sortOptions}
+                        onSelect={this.onSort}
+                        activeItem={sortOptions.find(({ field }) => field === activeSortField)}
                       />
                     }
                   />
@@ -117,7 +126,7 @@ const mapStateToProps = (state, ownProps) => {
     collection: selectCollection(state, collectionId),
     query,
     isTester: selectTester(state),
-    isRandomSort: query.getSort()?.field === 'random',
+    activeSortField: query.getSort()?.field || 'default',
     result: selectCollectionXrefResult(state, query),
   };
 };
