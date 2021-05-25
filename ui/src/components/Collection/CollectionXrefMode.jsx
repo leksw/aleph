@@ -3,7 +3,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { Button, Intent } from '@blueprintjs/core';
 import queryString from 'query-string';
 
 import SearchActionBar from 'components/common/SearchActionBar';
@@ -69,7 +68,7 @@ export class CollectionXrefMode extends React.Component {
   }
 
   render() {
-    const { activeSortField, collection, isRandomSort, intl, isTester, query, result } = this.props;
+    const { activeSortField, collection, intl, isTester, query, result } = this.props;
 
     const sortOptions = ['default', 'random', 'doubt'].map(field => ({ field, label: intl.formatMessage(messages[field]) }));
 
