@@ -14,6 +14,7 @@ export function entitiesQuery(location) {
   const context = {
     highlight: true,
     'filter:schemata': 'Thing',
+    'exclude:schemata': 'Table',
   };
   return Query.fromLocation('entities', location, context, '')
     .defaultSortBy('collection_id', 'asc');

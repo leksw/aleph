@@ -51,7 +51,6 @@ class EntitySearchBlockResultsRow extends Component {
     return (
       <li key={entity.id} className="data-block">
         <div className={resultClass}>
-          <div>{entity.collection.id}</div>
           <div key="entity" className="entity">
             {!hideCollection
               && (

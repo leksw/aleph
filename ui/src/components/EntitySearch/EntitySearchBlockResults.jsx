@@ -25,14 +25,10 @@ class EntitySearchBlockResults extends Component {
 
     const skeletonItems = [...Array(15).keys()];
 
-    const entityWithoutTable = result.results.filter(
-      entity => entity.schema.label !== "Table",
-    );
-
     return (
       <div className="EntitySearchBlockResults">
         <ul className={c({ updating: result.isPending })}>
-          {entityWithoutTable.map(entity => (
+          {result.results.map(entity => (
             <EntitySearchBlockResultsRow
               key={entity.id}
               entity={entity}
