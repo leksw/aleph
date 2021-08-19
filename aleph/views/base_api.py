@@ -89,6 +89,9 @@ def metadata():
         role = Role.load_cli_user()
         authz = Authz.from_role(role)
         data["token"] = authz.to_token()
+    data['isBlockSearchResult'] = getattr(
+      settings, "BLOCK_SEARCH_RESULT", False,
+    ) 
     return jsonify(data)
 
 

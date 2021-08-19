@@ -1,0 +1,75 @@
+@import "app/variables.scss";
+@import "app/mixins.scss";
+
+.EntitySearchBlockResults {
+  border-color: $aleph-border-color;
+
+  .bp3-control {
+    margin-bottom: 0 !important;
+  }
+}
+
+.EntitySearchBlockResults ul {
+  list-style: none;
+}
+
+.data-block {
+  padding: $aleph-grid-size*2.5 0;
+  border: 1px solid $aleph-border-color;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+}
+
+.country {
+  color: #8a9ba8;
+}
+
+.entity {
+  font-weight: bold;
+  max-width: unset;
+  white-space: normal !important;
+  word-break: break-word;
+
+  .bp3-skeleton {
+    white-space: nowrap;
+  }
+
+  .EntityLabel, .EntityLink {
+    display: flex !important;
+  }
+  .Transliterate {
+    display: inline !important;
+  }
+
+}
+
+.entity div {
+  padding-bottom: 10px;
+}
+
+.EntitySearchBlockResultsRow {
+  &.active {
+    em {
+      background: inherit;
+    }
+  }
+
+  em {
+    background: $aleph-text-highlight-color;
+    font-style: normal;
+  }
+}
+
+//medium and small screen
+@media screen and (max-width: $aleph-screen-md-max-width) {
+  .EntitySearchBlockResults {
+    .header-country, .header-dates, .header-size {
+      display: none;
+    }
+
+    .country, .date, .file-size {
+      display: none;
+    }
+  }
+}

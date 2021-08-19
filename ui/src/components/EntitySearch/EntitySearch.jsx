@@ -6,8 +6,9 @@ import { withRouter } from 'react-router';
 import c from 'classnames';
 
 import { queryEntities } from 'actions';
-import { selectEntitiesResult } from 'selectors';
+import { selectEntitiesResult, selectBlockSearchResult } from 'selectors';
 import EntitySearchResults from './EntitySearchResults';
+import EntitySearchBlockResults from './EntitySearchBlockResults';
 import { ErrorSection, QueryInfiniteLoad } from 'components/common';
 
 import './EntitySearch.scss';
@@ -54,6 +55,7 @@ export class EntitySearch extends Component {
       documentMode, hideCollection,
       showPreview, updateSelection, selection,
       emptyComponent, collection, writeable,
+      isBlockSearchResult,
     } = this.props;
     const isEmpty = !query.hasQuery();
 
@@ -71,18 +73,29 @@ export class EntitySearch extends Component {
             { isEmpty && emptyComponent}
           </section>
         )}
-        <EntitySearchResults
-          query={query}
-          result={result}
-          documentMode={documentMode}
-          hideCollection={hideCollection}
-          showPreview={showPreview}
-          updateQuery={this.updateQuery}
-          updateSelection={updateSelection}
-          selection={selection}
-          collection={collection}
-          writeable={writeable}
-        />
+        {isBlockSearchResult ? (
+          <EntitySearchBlockResults
+            query={query}
+            result={result}
+            hideCollection={hideCollection}
+            showPreview={showPreview}
+            updateQuery={this.updateQuery}
+            collection={collection}
+          />
+        ) : (
+          <EntitySearchResults
+            query={query}
+            result={result}
+            documentMode={documentMode}
+            hideCollection={hideCollection}
+            showPreview={showPreview}
+            updateQuery={this.updateQuery}
+            updateSelection={updateSelection}
+            selection={selection}
+            collection={collection}
+            writeable={writeable}
+          />
+        )}
         <QueryInfiniteLoad
           query={query}
           result={result}
@@ -95,7 +108,8 @@ export class EntitySearch extends Component {
 const mapStateToProps = (state, ownProps) => {
   const { query } = ownProps;
   const result = selectEntitiesResult(state, query);
-  return { query, result };
+  const isBlockSearchResult = selectBlockSearchResult(state);
+  return { query, result, isBlockSearchResult };
 };
 
 export default compose(

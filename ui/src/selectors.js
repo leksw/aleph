@@ -79,6 +79,10 @@ export function selectPages(state) {
   return selectMetadata(state).pages;
 }
 
+export function selectBlockSearchResult(state) {
+  return selectMetadata(state).isBlockSearchResult;
+}
+
 export function selectPage(state, name) {
   return selectPages(state).find((page) => page.name === name);
 }
