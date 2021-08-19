@@ -15,7 +15,8 @@ export function entitiesQuery(location) {
     highlight: true,
     'filter:schemata': 'Thing',
   };
-  return Query.fromLocation('entities', location, context, '');
+  return Query.fromLocation('entities', location, context, '')
+    .defaultSortBy('collection_id', 'asc');
 }
 
 function collectionContextQuery(context, location, collectionId, name) {
