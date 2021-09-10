@@ -49,6 +49,12 @@ class Query(object):
         if self.parser.text:
             qs = query_string_query(self.TEXT_FIELDS, self.parser.text)
             query.append(qs)
+        if self.parser.name or self.parser.code:
+            qs = query_string_query(
+                self.TEXT_FIELDS,
+                f'{self.parser.name or ""} {self.parser.code or ""}'.strip(),
+            )
+            query.append(qs)
         if self.parser.prefix:
             query.append(
                 {"match_phrase_prefix": {self.PREFIX_FIELD: self.parser.prefix}}

@@ -32,6 +32,7 @@ import Score from './Score';
 import Tag from './Tag';
 import SchemaCounts from './SchemaCounts';
 import SearchBox from './SearchBox';
+import SearchTwoBox from './SearchTwoBox';
 import Skeleton from './Skeleton';
 import Statistics from './Statistics';
 import Summary from './Summary';
@@ -81,6 +82,7 @@ export {
   Tag,
   SchemaCounts,
   SearchBox,
+  SearchTwoBox,
   Skeleton,
   QueryText,
   QueryInfiniteLoad,

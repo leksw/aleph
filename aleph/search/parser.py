@@ -28,6 +28,8 @@ class QueryParser(object):
         self.limit = limit
         self.next_limit = self.getint("next_limit", limit)
         self.text = sanitize_text(self.get("q"))
+        self.name = sanitize_text(self.get("name"))
+        self.code = sanitize_text(self.get("code"))
         self.prefix = sanitize_text(self.get("prefix"))
 
         # Disable or enable query caching

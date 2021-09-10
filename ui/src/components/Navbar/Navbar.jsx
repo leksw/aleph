@@ -8,11 +8,9 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import c from 'classnames';
 
-import AdvancedSearch from 'components/AdvancedSearch/AdvancedSearch';
 import AuthButtons from 'components/AuthButtons/AuthButtons';
 import { selectMetadata, selectSession, selectPages, selectEntitiesResult } from 'selectors';
-import SearchAlert from 'components/SearchAlert/SearchAlert';
-import { HotkeysContainer, SearchBox } from 'components/common';
+import { HotkeysContainer, SearchTwoBox } from 'components/common';
 import getPageLink from 'util/getPageLink';
 import { entitiesQuery } from 'queries';
 
@@ -25,7 +23,15 @@ const messages = defineMessages({
   },
   placeholder: {
     id: 'search.placeholder',
-    defaultMessage: 'Search companies, people and documents',
+    defaultMessage: 'Search by Name',
+  },
+  placeholderName: {
+    id: 'search.placeholder',
+    defaultMessage: 'Search by Name',
+  },
+  placeholderNumber: {
+    id: 'search.placeholder',
+    defaultMessage: 'Search by Code',
   },
 });
 
@@ -34,13 +40,13 @@ export class Navbar extends React.Component {
     super(props);
     this.state = {
       mobileSearchOpen: false,
-      advancedSearchOpen: false,
     };
 
     this.onToggleMobileSearch = this.onToggleMobileSearch.bind(this);
-    this.onToggleAdvancedSearch = this.onToggleAdvancedSearch.bind(this);
     this.onSearchSubmit = this.onSearchSubmit.bind(this);
     this.navbarRef = React.createRef();
+    this.inputNameRef = React.createRef();
+    this.inputCodeRef = React.createRef();
     this.inputRef = React.createRef();
   }
 
@@ -49,15 +55,11 @@ export class Navbar extends React.Component {
     this.setState(({ mobileSearchOpen }) => ({ mobileSearchOpen: !mobileSearchOpen }));
   }
 
-  onToggleAdvancedSearch() {
-    this.setState(({ advancedSearchOpen }) => ({ advancedSearchOpen: !advancedSearchOpen }));
-  }
-
-  onSearchSubmit(queryText) {
+  onSearchSubmit(queryName, queryCode) {
     const { history, query } = this.props;
-    let search = queryString.stringify({ q: queryText });
+    let search = queryString.stringify({ name: queryName, code: queryCode });
     if (query) {
-      const newQuery = query.set('q', queryText);
+      const newQuery = query.set('name', queryName).set('code', queryCode);
       search = newQuery.toLocation();
     }
 
@@ -68,11 +70,9 @@ export class Navbar extends React.Component {
   }
 
   render() {
-    const { metadata, pages, session, query, result, isHomepage, intl } = this.props;
-    const { advancedSearchOpen, mobileSearchOpen } = this.state;
+    const { metadata, pages, session, query, isHomepage, intl } = this.props;
+    const { mobileSearchOpen } = this.state;
 
-    const queryText = query?.getString('q');
-    const alertQuery = result?.query_text || queryText;
     const menuPages = pages.filter((page) => page.menu);
 
     return (
@@ -90,22 +90,17 @@ export class Navbar extends React.Component {
                 <div className="Navbar__search-container">
                   <div className="Navbar__search-container__content">
                     <div className="Navbar__search-container__searchbar">
-                      <SearchBox
+                      <SearchTwoBox
                         onSearch={this.onSearchSubmit}
                         query={query}
                         inputProps={{
-                          inputRef: this.inputRef,
-                          rightElement: <SearchAlert alertQuery={alertQuery} />
+                          inputCodeRef: this.inputCodeRef,
+                          inputNameRef: this.inputNameRef,
                         }}
-                        placeholder={intl.formatMessage(messages.placeholder)}
+                        placeholderNumber={intl.formatMessage(messages.placeholderNumber)}
+                        placeholderName={intl.formatMessage(messages.placeholderName)}
                       />
                     </div>
-                    <Button
-                      className="Navbar__search-container__search-tips bp3-fixed"
-                      icon="settings"
-                      minimal
-                      onClick={this.onToggleAdvancedSearch}
-                    />
                   </div>
                 </div>
               )}
@@ -154,11 +149,6 @@ export class Navbar extends React.Component {
             </Bp3Navbar.Group>
           </Bp3Navbar>
         </div>
-        <AdvancedSearch
-          isOpen={advancedSearchOpen}
-          onToggle={this.onToggleAdvancedSearch}
-          navbarRef={this.navbarRef}
-        />
         <HotkeysContainer
           hotkeys={[
             {
