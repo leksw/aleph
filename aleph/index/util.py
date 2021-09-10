@@ -122,7 +122,7 @@ def query_string_query(field, query):
             "query": query,
             "lenient": True,
             "fields": ensure_list(field),
-            "default_operator": "AND",
+            "default_operator": "OR",
             "minimum_should_match": "66%",
         }
     }
