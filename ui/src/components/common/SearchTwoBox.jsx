@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { injectIntl } from 'react-intl';
 import { InputGroup, ControlGroup, Button, FormGroup } from '@blueprintjs/core';
+import c from 'classnames';
 
 
 export class SearchTwoBox extends PureComponent {
@@ -47,7 +48,7 @@ export class SearchTwoBox extends PureComponent {
   }
 
   render() {
-    const { placeholderName, placeholderNumber, className, inputProps } = this.props;
+    const { placeholderName, placeholderNumber, className, mobileSearchOpen, inputProps } = this.props;
     const { inputNameRef, inputCodeRef } = inputProps;
     const { queryName, queryCode } = this.state;
 
@@ -57,11 +58,11 @@ export class SearchTwoBox extends PureComponent {
 
     return (
       <form onSubmit={this.onSubmitSearch} className={className}>
-        <ControlGroup fill={true} vertical={false}>
+        <ControlGroup fill={true} vertical={mobileSearchOpen}>
           <FormGroup
             label="Name"
             labelFor="name-input"
-            inline={true}
+            inline={!mobileSearchOpen}
           >
             <InputGroup
               fill
@@ -76,8 +77,8 @@ export class SearchTwoBox extends PureComponent {
           <FormGroup
             label="Code"
             labelFor="code-input"
-            inline={true}
-            className="Navbar__search-container second-group"
+            inline={!mobileSearchOpen}
+            className={c({ 'mobile-force-open': mobileSearchOpen })} 
           >
             <InputGroup
               fill
@@ -89,9 +90,11 @@ export class SearchTwoBox extends PureComponent {
               inputRef={inputCodeRef}
             />
           </FormGroup>
-          <FormGroup>
+          <FormGroup
+            className={c({ 'mobile-force-open': mobileSearchOpen })}
+          >
             <Button
-              className="Navbar__search-container__search-tips bp3-button"
+              // className="Navbar__search-container__search-tips bp3-button"
               type="submit"
               text="Search"
               onClick={this.onSubmitSearch}

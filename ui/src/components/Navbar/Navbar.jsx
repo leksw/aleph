@@ -23,7 +23,7 @@ const messages = defineMessages({
   },
   placeholder: {
     id: 'search.placeholder',
-    defaultMessage: 'Search by Name',
+    defaultMessage: 'Search companies, people and documents',
   },
   placeholderName: {
     id: 'search.placeholder',
@@ -78,7 +78,7 @@ export class Navbar extends React.Component {
     return (
       <>
         <div className="Navbar" ref={this.navbarRef}>
-          <Bp3Navbar id="Navbar" className="bp3-dark" >
+          <Bp3Navbar id="Navbar" className={c('bp3-dark', { 'mobile-force-open': mobileSearchOpen })} >
             <Bp3Navbar.Group align={Alignment.LEFT} className={c('Navbar__left-group', { hide: mobileSearchOpen })}>
               <Link to="/" className="Navbar__home-link">
                 {!!metadata.app.logo && <img src={metadata.app.logo} alt={metadata.app.title} />}
@@ -91,6 +91,7 @@ export class Navbar extends React.Component {
                   <div className="Navbar__search-container__content">
                     <div className="Navbar__search-container__searchbar">
                       <SearchTwoBox
+                        mobileSearchOpen={mobileSearchOpen}
                         onSearch={this.onSearchSubmit}
                         query={query}
                         inputProps={{
@@ -99,6 +100,7 @@ export class Navbar extends React.Component {
                         }}
                         placeholderNumber={intl.formatMessage(messages.placeholderNumber)}
                         placeholderName={intl.formatMessage(messages.placeholderName)}
+                        className={c({ 'mobile-force-close': !mobileSearchOpen })}
                       />
                     </div>
                   </div>
