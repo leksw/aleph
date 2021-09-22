@@ -55,7 +55,7 @@ export class EntitySearch extends Component {
       query, result, intl, className, columns,
       showPreview, updateSelection, selection,
       emptyComponent, collection, writeable,
-      isBlockSearchResult,
+      isBlockSearchResult, hideRelated,
     } = this.props;
     const isEmpty = !query.hasQuery();
 
@@ -80,6 +80,7 @@ export class EntitySearch extends Component {
             showPreview={showPreview}
             updateQuery={this.updateQuery}
             collection={collection}
+            hideRelated={hideRelated}
           />
         ) : (
           <EntitySearchResults

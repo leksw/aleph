@@ -144,7 +144,37 @@ def entity_tags(proxy, authz, prop_types=DEFAULT_TAGS):
     return results
 
 
-def _counted_msearch(queries, authz, limit=0):
+def entity_with_same_properties(proxy, authz, prop_types=DEFAULT_TAGS, limit=300):
+    """For a given proxy, determine other entities
+    which have at least one same meaning of one of the properties,
+    if it is one of a set of types."""
+    queries = {}
+    lookup = {}
+    values = set()
+    for prop, value in proxy.itervalues():
+        if prop.type not in prop_types:
+            continue
+        if not prop.matchable:
+            continue
+        if prop.specificity(value) > 0.1:
+            values.add((prop.type, value))
+
+    type_names = [t.name for t in prop_types]
+    log.debug("Tags[%s]: %s values", type_names, len(values))
+    for (type_, value) in values:
+        key = type_.node_id(value)
+        lookup[key] = (type_, value)
+        # Determine which indexes may contain further mentions (only things).
+        schemata = model.get_type_schemata(type_)
+        schemata = [s for s in schemata if s.is_a(Entity.THING)]
+        index = entities_read_index(schemata)
+        queries[(index, key)] = field_filter_query(type_.group, value)
+
+    entities, _ = _counted_msearch(queries, authz, limit=limit)
+    return entities
+
+
+def _counted_msearch(queries, authz, limit=100):
     """Run batched queries to count or retrieve entities with certain
     property values."""
     # The default case for this is that we want to retrieve only the

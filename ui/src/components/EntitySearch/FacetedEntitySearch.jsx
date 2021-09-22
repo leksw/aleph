@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import queryString from 'query-string';
 import { defineMessages, injectIntl } from 'react-intl';
-import { Alignment, Button, Divider, Drawer, Intent, Position } from '@blueprintjs/core';
+import { Alignment, AnchorButton, Button, Divider, Drawer, Intent, Position } from '@blueprintjs/core';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
@@ -57,9 +57,9 @@ const messages = defineMessages({
     id: 'search.facets.configure_placeholder',
     defaultMessage: 'Search for a filter...',
   },
-  configure_columns: {
-    id: 'search.columns.configure',
-    defaultMessage: 'Configure columns'
+  related_data: {
+    id: 'search.related_data',
+    defaultMessage: 'Related data'
   },
   configure_columns_placeholder: {
     id: 'search.columns.configure_placeholder',
@@ -81,6 +81,7 @@ class FacetedEntitySearch extends React.Component {
     this.state = {
       hideFacets: false,
       isMobile: false,
+      hideRelated: true,
     };
 
     this.updateQuery = this.updateQuery.bind(this);
@@ -90,7 +91,8 @@ class FacetedEntitySearch extends React.Component {
     this.showNextPreview = this.showNextPreview.bind(this);
     this.showPreviousPreview = this.showPreviousPreview.bind(this);
     this.showPreview = this.showPreview.bind(this);
-    this.checkMobileWidth = this.checkMobileWidth.bind(this)
+    this.checkMobileWidth = this.checkMobileWidth.bind(this);
+    this.toggleRelated = this.toggleRelated.bind(this);
     this.ref = React.createRef();
   }
 
@@ -128,6 +130,11 @@ class FacetedEntitySearch extends React.Component {
     return this.props.result.results.findIndex(
       entity => entity.id === parsedHash['preview:id'],
     );
+  }
+
+  toggleRelated() {
+    this.setState(({ hideRelated }) => ({ hideRelated: !hideRelated }));
+    
   }
 
   updateQuery(newQuery) {
@@ -223,8 +230,8 @@ class FacetedEntitySearch extends React.Component {
   }
 
   render() {
-    const { additionalFields = [], columns, children, facets, query, result, intl, hasCustomColumns } = this.props;
-    const { hideFacets, isMobile } = this.state;
+    const { additionalFields = [], columns, children, query, result, intl } = this.props;
+    const { hideFacets, isMobile, hideRelated } = this.state;
 
     const empty = (
       <ErrorSection
@@ -301,7 +308,12 @@ class FacetedEntitySearch extends React.Component {
                   onExport={() => this.props.triggerQueryExport(exportLink)}
                 >
                   <div className="SearchActionBar__secondary">
-                    <SearchFieldSelect
+                    <AnchorButton
+                      icon='link'
+                      text={intl.formatMessage(messages.related_data)}
+                      onClick={this.toggleRelated}
+                    />
+                    {/* <SearchFieldSelect
                       onSelect={(field) => this.onSearchConfigEdit('columns', field)}
                       onReset={hasCustomColumns && (() => this.saveSearchConfig({ columns: null, facets }))}
                       selected={columns}
@@ -311,7 +323,7 @@ class FacetedEntitySearch extends React.Component {
                         icon='two-columns'
                         text={intl.formatMessage(messages.configure_columns)}
                       />
-                    </SearchFieldSelect>
+                    </SearchFieldSelect> */}
                   </div>
                 </SearchActionBar>
               </div>
@@ -320,6 +332,7 @@ class FacetedEntitySearch extends React.Component {
                 updateQuery={this.updateQuery}
                 result={result}
                 emptyComponent={empty}
+                hideRelated={hideRelated}
                 columns={[...additionalFields.map(getGroupField), ...columns]}
               />
             </DualPane.ContentPane>

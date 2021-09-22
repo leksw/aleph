@@ -1,4 +1,5 @@
 import logging
+from pprint import pprint
 from flask import Blueprint, request
 from flask_babel import gettext
 from werkzeug.exceptions import NotFound
@@ -12,7 +13,7 @@ from aleph.search.parser import SearchQueryParser, QueryParser
 from aleph.logic.entities import upsert_entity, delete_entity
 from aleph.logic.entities import validate_entity, check_write_entity
 from aleph.logic.profiles import pairwise_judgements
-from aleph.logic.expand import entity_tags, expand_proxies
+from aleph.logic.expand import entity_tags, expand_proxies, entity_with_same_properties
 from aleph.logic.html import sanitize_html
 from aleph.logic.export import create_export
 from aleph.model.entityset import EntitySet, Judgement
@@ -136,11 +137,30 @@ def index():
     parser = SearchQueryParser(request.values, request.authz)
     result = EntitiesQuery.handle(request, parser=parser)
     tag_request(query=result.query.to_text(), prefix=parser.prefix)
+    
     links = {}
     if request.authz.logged_in and result.total <= MAX_PAGE:
         query = list(request.args.items(multi=True))
         links["export"] = url_for("entities_api.export", _query=query)
-    return EntitySerializer.jsonify_result(result, extra={"links": links})
+    
+    entity_same_properties_result = []
+    for id in [ent['id'] for ent in result.results]:
+        entity = get_index_entity(id, request.authz.READ)
+        tag_request(collection_id=entity.get("collection_id"))
+        same_entity = [
+          e for e in entity_with_same_properties(model.get_proxy(entity), request.authz)
+          if e['id'] != id
+        ]
+        entity_same_properties_result.extend(same_entity)
+
+    return EntitySerializer.jsonify_result(
+      result,
+      extra={
+        "links": links,
+        "entity_same_properties": entity_same_properties_result
+      },
+    )
+
 
 
 @blueprint.route("/api/2/search/export", methods=["POST"])
@@ -402,6 +422,45 @@ def tags(entity_id):
     results = entity_tags(model.get_proxy(entity), request.authz)
     return jsonify({"status": "ok", "total": len(results), "results": results})
 
+
+@blueprint.route("/api/2/entities/related", methods=["GET"])
+def related_entities():
+    """
+    ---
+    get:
+      summary: Get related entity
+      description: >-
+        Get related entity for the entity with ids `ids`.
+      parameters:
+        in: query
+        name: ids
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                - $ref: '#/components/schemas/QueryResponse'
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EntityTag'
+      tags:
+      - Entity
+    """
+    enable_cache()
+    print(request.values)
+    parser = SearchQueryParser(request.values, request.authz)
+    # entity = get_index_entity(entity_id, request.authz.READ)
+    # tag_request(collection_id=entity.get("collection_id"))
+    results = [] #  entity_tags(model.get_proxy(entity), request.authz)
+    return jsonify({"status": "ok", "total": len(results), "results": results})
+  
 
 @blueprint.route("/api/2/entities/<entity_id>", methods=["POST", "PUT"])
 def update(entity_id):

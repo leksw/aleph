@@ -18,6 +18,7 @@ import roles from './roles';
 import notifications from './notifications';
 import systemStatus from './systemStatus';
 import exports from './exports';
+import sameEntities from './sameEntities';
 
 
 const rootReducer = combineReducers({
@@ -39,6 +40,7 @@ const rootReducer = combineReducers({
   results,
   systemStatus,
   exports,
+  sameEntities,
 });
 
 export default rootReducer;

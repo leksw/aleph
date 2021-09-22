@@ -24,7 +24,7 @@ function selectObject(state, objects, id) {
   return obj;
 }
 
-function selectResult(state, query, expand) {
+function selectResult(state, query, expand, extraExpand) {
   if (!query || !query.path) {
     return {
       ...loadState(),
@@ -36,11 +36,17 @@ function selectResult(state, query, expand) {
   }
   const result = {
     results: [],
+    entity_same_properties: [],
     ...selectObject(state, state.results, query.toKey()),
   };
   if (expand) {
     result.results = result.results
       .map(id => expand(state, id))
+      .filter((r) => r.id !== undefined);
+  }
+  if (extraExpand) { 
+    result.entity_same_properties = result.entity_same_properties
+      .map(id => extraExpand(state, id))
       .filter((r) => r.id !== undefined);
   }
   return result;
@@ -195,6 +201,40 @@ export function selectEntity(state, entityId) {
   return result;
 }
 
+export function selectSameEntity(state, entityId) {
+  const entity = selectObject(state, state.sameEntities, entityId)
+  const lastViewed = getRecentlyViewedItem(entityId);
+
+  if (!entity.selectorCache) {
+    const model = selectModel(state);
+    if (!entity.schema || !model) {
+      return entity;
+    }
+    entity.selectorCache = model.getEntity(entity);
+  }
+
+  const result = entity.selectorCache;
+  result.safeHtml = entity.safeHtml;
+  result.collection = entity.collection;
+  result.role = entity.role;
+  result.createdAt = entity.created_at;
+  result.updatedAt = entity.updated_at;
+  result.highlight = entity.highlight;
+  result.latinized = entity.latinized;
+  result.isPending = !!entity.isPending;
+  result.isError = !!entity.isError;
+  result.shouldLoad = !!entity.shouldLoad;
+  result.shouldLoadDeep = !!entity.shouldLoadDeep;
+  result.shallow = !!entity.shallow;
+  result.error = entity.error;
+  result.links = entity.links;
+  result.profileId = entity.profile_id;
+  result.lastViewed = lastViewed;
+  result.writeable = entity.writeable;
+
+  return result;
+}
+
 export function selectEntityDirectionality(state, entity) {
   const isRtl = isEntityRtl(entity, selectLocale(state), selectModel(state));
   return isRtl ? "rtl" : "ltr";
@@ -237,7 +277,7 @@ export function selectRolesResult(state, query) {
 }
 
 export function selectEntitiesResult(state, query) {
-  return selectResult(state, query, selectEntity);
+  return selectResult(state, query, selectEntity, selectSameEntity);
 }
 
 function buildReferences(references, schema) {

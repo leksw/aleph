@@ -35,8 +35,13 @@ export function updateResultsKeyed(state, { query, result }) {
   if (!result?.results) {
     return updateResultsFull(state, { query, result });
   }
+  let entity_same_properties = [];
+  if (result?.entity_same_properties) {
+    entity_same_properties = result.entity_same_properties.map(r => r.id)
+  }
   const key = query.toKey();
-  const res = { ...result, results: result.results.map(r => r.id) };
+  const res = { ...result, results: result.results.map(r => r.id),  entity_same_properties: entity_same_properties};
+
   return objectLoadComplete(state, key, mergeResults(state[key], res));
 }
 
@@ -103,6 +108,14 @@ export function objectDelete(state, id) {
 export function resultObjects(state, result, onComplete = objectLoadComplete) {
   if (result.results !== undefined) {
     return result.results
+      .reduce((finalState, object) => onComplete(finalState, object.id, object), state);
+  }
+  return state;
+}
+
+export function sameEntityObjects(state, result, onComplete = objectLoadComplete) {
+  if (result.entity_same_properties !== undefined) {
+    return result.entity_same_properties
       .reduce((finalState, object) => onComplete(finalState, object.id, object), state);
   }
   return state;

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React, { Component } from 'react';
 import { injectIntl } from 'react-intl';
 import c from 'classnames';
@@ -12,7 +13,7 @@ import './EntitySearchBlockResults.scss';
 
 class EntitySearchBlockResults extends Component {
   render() {
-    const { result, location } = this.props;
+    const { result, location, hideRelated } = this.props;
     const { hideCollection = false, showPreview = true } = this.props;
 
     if (result.isError) {
@@ -24,11 +25,16 @@ class EntitySearchBlockResults extends Component {
     }
 
     const skeletonItems = [...Array(15).keys()];
+    let data = result.results;
+    if (!hideRelated) {
+      data = _.uniqBy([...data, ...result.entity_same_properties], 'id');
+    }
+    
 
     return (
       <div className="EntitySearchBlockResults">
         <ul className={c({ updating: result.isPending })}>
-          {result.results.map(entity => (
+          {data.map(entity => (
             <EntitySearchBlockResultsRow
               key={entity.id}
               entity={entity}
